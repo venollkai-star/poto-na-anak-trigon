@@ -13,10 +13,24 @@
   }
   h1 { text-align: center; margin-bottom: 20px; color: #333; text-shadow: 1px 1px 2px #aaa; }
 
-  input[type="file"] {
-    display: block; 
-    margin: 0 auto 20px auto;
+  .controls {
+    text-align: center;
+    margin-bottom: 20px;
   }
+
+  input[type="file"] { margin-bottom: 10px; }
+
+  #uploadBtn {
+    padding: 8px 16px;
+    font-size: 14px;
+    background: #7873f5;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  #uploadBtn:hover { background: #5c52d6; }
 
   #gallery { 
     display: grid; 
@@ -100,7 +114,10 @@
 <body>
 
 <h1>Image of Trigon</h1>
-<input type="file" id="fileInput" multiple accept="image/*">
+<div class="controls">
+  <input type="file" id="fileInput" multiple accept="image/*"><br>
+  <button id="uploadBtn">Upload</button>
+</div>
 <div id="gallery"></div>
 
 <div id="lightbox">
@@ -113,12 +130,13 @@
 
 <script>
 const fileInput = document.getElementById('fileInput');
+const uploadBtn = document.getElementById('uploadBtn');
 const gallery = document.getElementById('gallery');
 const lightbox = document.getElementById('lightbox');
 const lightboxImg = document.getElementById('lightbox-img');
 
-// Load saved photos dari LocalStorage
 let photos = JSON.parse(localStorage.getItem('trigonPhotos')) || [];
+let filesToUpload = [];
 
 // Simpan foto ke LocalStorage
 function savePhotos() {
@@ -150,10 +168,15 @@ function deletePhoto(index) {
   renderGallery();
 }
 
-// Tambah foto baru
+// Pilih file tapi belum upload
 fileInput.addEventListener('change', (e) => {
-  const files = Array.from(e.target.files);
-  files.forEach(file => {
+  filesToUpload = Array.from(e.target.files);
+});
+
+// Upload foto yang dipilih
+uploadBtn.addEventListener('click', () => {
+  if(filesToUpload.length === 0) return;
+  filesToUpload.forEach(file => {
     const reader = new FileReader();
     reader.onload = () => {
       photos.push(reader.result);
@@ -162,6 +185,8 @@ fileInput.addEventListener('change', (e) => {
     }
     reader.readAsDataURL(file);
   });
+  filesToUpload = [];
+  fileInput.value = ""; // reset input
 });
 
 // Tutup lightbox
